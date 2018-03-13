@@ -1,1 +1,2 @@
-# MCTS based on Two Player UCT in O-Mok environment
+# mcts-omok
+## self-play based on Two Player UCT 
