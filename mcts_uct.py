@@ -168,7 +168,7 @@ def main():
     mcts = MCTS(SIMULATIONS)
     result = {'Black': 0, 'White': 0, 'Draw': 0}
     for game in range(GAMES):
-        print('####  GAME: {}  ####\n'.format(game + 1))
+        print(' ####  GAME: {}  ####\n'.format(game + 1))
         # reset state
         state = env.reset()
         done = False
