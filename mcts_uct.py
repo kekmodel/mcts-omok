@@ -7,6 +7,7 @@ from omok_env import OmokEnv, OmokEnvSimul
 import time
 from hashlib import md5
 from collections import deque, defaultdict
+from pathos.multiprocessing import ProcessPool
 
 import numpy as np
 from numpy import random
@@ -20,7 +21,7 @@ BLACK = 1
 WHITE = 0
 BOARD_SIZE = 9
 
-SIMULATIONS = 65540
+SIMULATIONS = 10000
 GAMES = 12
 
 
@@ -168,6 +169,7 @@ class MCTS:
 def main():
     env = OmokEnv()
     mcts = MCTS(SIMULATIONS)
+    pool = ProcessPool(nodes=4)
     result = {'Black': 0, 'White': 0, 'Draw': 0}
     for game in range(GAMES):
         print('#########  GAME: {}  #########\n'.format(game + 1))
@@ -177,7 +179,7 @@ def main():
         while not done:
             env.render()
             # start simulation
-            action = mcts.get_action(state)
+            action = pool.map(mcts.get_action, [state])
             state, z, done = env.step(action)
         if done:
             if z == 1:
