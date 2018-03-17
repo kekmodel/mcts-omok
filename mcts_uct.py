@@ -166,7 +166,6 @@ class MCTS:
 def main():
     env = OmokEnv()
     mcts = MCTS(SIMULATIONS)
-    pool = ProcessPool(nodes=4)
     result = {'Black': 0, 'White': 0, 'Draw': 0}
     for game in range(GAMES):
         print('#########  GAME: {}  #########\n'.format(game + 1))
@@ -176,7 +175,7 @@ def main():
         while not done:
             env.render()
             # start simulation
-            action = pool.map(mcts.get_action, [state])
+            action = mcts.get_action(state)
             state, z, done = env.step(action)
         if done:
             if z == 1:
