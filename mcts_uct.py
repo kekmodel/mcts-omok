@@ -3,12 +3,9 @@
 # kekmodel@gmail.com | facebook.com/kekmodel
 
 from omok_env import OmokEnv, OmokEnvSimul
-
 import time
 from hashlib import md5
 from collections import deque, defaultdict
-from pathos.multiprocessing import ProcessPool
-
 import numpy as np
 from numpy import random
 
