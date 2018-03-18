@@ -14,24 +14,23 @@ class OmokEnv:
         self.state = None
         self.board = None
         self.board_fill = None
-        self.history = None
         self.done = None
 
     def reset(self, state=None):
         if state is None:  # initialize state
-            self.state = np.zeros((3 * BOARD_SIZE**2), 'int')
-            self.board = np.zeros((3, BOARD_SIZE**2), 'int')
+            self.state = np.zeros((3 * BOARD_SIZE**2), 'int8')
+            self.board = np.zeros((3, BOARD_SIZE**2), 'int8')
         else:  # pass the state to the simulation's root
             self.state = state.copy()
             self.board = self.state.reshape(3, BOARD_SIZE**2)
-        return self.state
+        return self.state, self.board
 
     def step(self, action):
         # board
         self.board = self.state.reshape(3, BOARD_SIZE**2)
         self.board_fill = (self.board[CURRENT] + self.board[OPPONENT])
         if self.board_fill[action] == 1:
-            raise NotImplementedError("No Legal Move!")
+            raise ValueError("No Legal Move!")
         # action
         self.board[OPPONENT][action] = 1
         self.board[COLOR] = abs(self.board[COLOR] - 1)
@@ -80,7 +79,7 @@ class OmokEnv:
                     else:
                         reward = -1
                     print('#####  {} Win! #####'.format(COLOR_DICT[color]))
-                    return self.state, reward, done
+                    return self.state, self.board, reward, done
                 if sum_diagonal_1 == 5 or sum_diagonal_2 == 5:
                     reward = 1
                     done = True
@@ -90,19 +89,20 @@ class OmokEnv:
                     else:
                         reward = -1
                     print('#####  {} Win! #####'.format(COLOR_DICT[color]))
-                    return self.state, reward, done
+                    return self.state, self.board, reward, done
         if np.sum(self.board_fill) == BOARD_SIZE**2 - 1:
             reward = 0
             done = True
             print('#####    Draw!   #####')
-            return self.state, reward, done
-        else:  # game continues
+            return self.state, self.board, reward, done
+        else:  # continue
             reward = 0
             done = False
-            return self.state, reward, done
+            return self.state, self.board, reward, done
     __check_win = _check_win
 
 
+# do not print
 class OmokEnvSimul(OmokEnv):
     def _check_win(self, board):
         current_grid = np.zeros((5, 5))
@@ -120,7 +120,7 @@ class OmokEnvSimul(OmokEnv):
                     else:
                         reward = -1
                     done = True
-                    return self.state, reward, done
+                    return self.state, self.board, reward, done
                 if sum_diagonal_1 == 5 or sum_diagonal_2 == 5:
                     color = self.board[COLOR][0]
                     if color == BLACK:
@@ -128,15 +128,15 @@ class OmokEnvSimul(OmokEnv):
                     else:
                         reward = -1
                     done = True
-                    return self.state, reward, done
+                    return self.state, self.board, reward, done
         if np.sum(self.board_fill) == BOARD_SIZE**2 - 1:
             reward = 0
             done = True
-            return self.state, reward, done
+            return self.state, self.board, reward, done
         else:
             reward = 0
             done = False
-            return self.state, reward, done
+            return self.state, self.board, reward, done
 
 
 if __name__ == '__main__':
