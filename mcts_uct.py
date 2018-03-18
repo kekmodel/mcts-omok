@@ -62,8 +62,8 @@ class MCTS:
     def _simulation(self, state):
         start = time.time()
         print('Computing Moves', end='', flush=True)
-        for sim in range(SIMULATIONS):
-            if (sim + 1) % (SIMULATIONS / 5) == 0:
+        for sim in range(self.num_simul):
+            if (sim + 1) % (self.num_simul / 5) == 0:
                 print('.', end='', flush=True)
             # reset state
             self.state, self.board = self.env_simul.reset(state)
