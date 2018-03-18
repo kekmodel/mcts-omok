@@ -1,5 +1,4 @@
-
-from omok_env import OmokEnv
+from omok_env_history import OmokEnv
 from mcts_uct import MCTS
 import numpy as np
 
@@ -17,7 +16,7 @@ COLUMN = {"a": 0, "b": 1, "c": 2,
           "D": 3, "E": 4, "F": 5,
           "G": 6, "H": 7, "I": 8}
 
-SIMULATIONS = 10000
+SIMULATIONS = 50000
 GAMES = 2
 
 

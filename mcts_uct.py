@@ -1,4 +1,4 @@
-from omok_env import OmokEnv, OmokEnvSimul
+from omok_env_history import OmokEnv, OmokEnvSimul
 import time
 from collections import deque, defaultdict
 from hashlib import md5
@@ -13,8 +13,8 @@ BLACK = 1
 WHITE = 0
 BOARD_SIZE = 9
 
-SIMULATIONS = 2000
-GAMES = 10000
+SIMULATIONS = 3000
+GAMES = 1000
 
 
 class MCTS:
