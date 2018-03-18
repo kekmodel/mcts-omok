@@ -56,7 +56,6 @@ if __name__ == '__main__':
             # start simulations
             action = manager.get_action(state, board, idx)
             state, board, z, done = env.step(action)
-            print(board)
             idx += 1
         if done:
             if z == 1:
