@@ -27,8 +27,8 @@ class OmokEnv:
             state_origin = self.state.reshape(17, BOARD_SIZE**2)
             self.history = deque([state_origin[i] for i in range(16)], maxlen=16)
             self.board = np.zeros((3, BOARD_SIZE**2), 'int8')
-            self.board[CURRENT] = state_origin[0]
-            self.board[OPPONENT] = state_origin[1]
+            self.board[CURRENT] = state_origin[1]
+            self.board[OPPONENT] = state_origin[0]
             self.board[COLOR] = state_origin[16]
         return self.state, self.board
 
@@ -36,27 +36,27 @@ class OmokEnv:
         # board
         state_origin = self.state.reshape(17, BOARD_SIZE**2)
         self.board = np.zeros((3, BOARD_SIZE**2), 'int8')
-        self.board[CURRENT] = state_origin[0]
-        self.board[OPPONENT] = state_origin[1]
+        self.board[CURRENT] = state_origin[1]
+        self.board[OPPONENT] = state_origin[0]
         self.board[COLOR] = state_origin[16]
         self.board_fill = (self.board[CURRENT] + self.board[OPPONENT])
         if self.board_fill[action] == 1:
             raise ValueError("No Legal Move!")
 
         # action
-        self.board[OPPONENT][action] = 1
-        self.history.appendleft(self.board[OPPONENT])
+        self.board[CURRENT][action] = 1
+        self.history.appendleft(self.board[CURRENT])
         self.board[COLOR] = abs(self.board[COLOR] - 1)
         self.state = np.r_[np.asarray(self.history).flatten(),
                            np.asarray(self.board[COLOR]).flatten()]
-        return self._check_win(self.board[OPPONENT].reshape(BOARD_SIZE, BOARD_SIZE))
+        return self._check_win(self.board[CURRENT].reshape(BOARD_SIZE, BOARD_SIZE))
 
     def render(self):
         if self.board[COLOR][0] == BLACK:
-            board = (self.board[CURRENT] * 2 + self.board[OPPONENT]).reshape(
+            board = (self.board[CURRENT] + self.board[OPPONENT] * 2).reshape(
                 BOARD_SIZE, BOARD_SIZE)
         else:
-            board = (self.board[CURRENT] + self.board[OPPONENT] * 2).reshape(
+            board = (self.board[CURRENT] * 2 + self.board[OPPONENT]).reshape(
                 BOARD_SIZE, BOARD_SIZE)
         count = np.sum(self.board[CURRENT] + self.board[OPPONENT])
         board_str = '\n  A B C D E F G H I\n'
@@ -86,23 +86,30 @@ class OmokEnv:
                 sum_diagonal_1 = np.sum(current_grid.diagonal())
                 sum_diagonal_2 = np.sum(np.flipud(current_grid).diagonal())
                 if 5 in sum_horizontal or 5 in sum_vertical:
-                    reward = 1
                     done = True
                     color = self.board[COLOR][0]
-                    print('######  {} Win!  ######'.format(COLOR_DICT[color]))
+                    if color == BLACK:
+                        reward = 1
+                    else:
+                        reward = -1
+                    print('#####  {} Win! #####'.format(COLOR_DICT[color]))
                     return self.state, self.board, reward, done
                 if sum_diagonal_1 == 5 or sum_diagonal_2 == 5:
                     reward = 1
                     done = True
                     color = self.board[COLOR][0]
-                    print('######  {} Win!  ######'.format(COLOR_DICT[color]))
+                    if color == BLACK:
+                        reward = 1
+                    else:
+                        reward = -1
+                    print('#####  {} Win! #####'.format(COLOR_DICT[color]))
                     return self.state, self.board, reward, done
         if np.sum(self.board_fill) == BOARD_SIZE**2 - 1:
             reward = 0
             done = True
-            print('######    Draw!   ######')
+            print('#####    Draw!   #####')
             return self.state, self.board, reward, done
-        else:  # game continues
+        else:  # continue
             reward = 0
             done = False
             return self.state, self.board, reward, done
@@ -120,18 +127,27 @@ class OmokEnvSimul(OmokEnv):
                 sum_diagonal_1 = np.sum(current_grid.diagonal())
                 sum_diagonal_2 = np.sum(np.flipud(current_grid).diagonal())
                 if 5 in sum_horizontal or 5 in sum_vertical:
-                    reward = 1
                     done = True
+                    color = self.board[COLOR][0]
+                    if color == BLACK:
+                        reward = 1
+                    else:
+                        reward = -1
                     return self.state, self.board, reward, done
                 if sum_diagonal_1 == 5 or sum_diagonal_2 == 5:
                     reward = 1
                     done = True
+                    color = self.board[COLOR][0]
+                    if color == BLACK:
+                        reward = 1
+                    else:
+                        reward = -1
                     return self.state, self.board, reward, done
         if np.sum(self.board_fill) == BOARD_SIZE**2 - 1:
             reward = 0
             done = True
             return self.state, self.board, reward, done
-        else:
+        else:  # continue
             reward = 0
             done = False
             return self.state, self.board, reward, done

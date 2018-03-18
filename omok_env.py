@@ -32,17 +32,17 @@ class OmokEnv:
         if self.board_fill[action] == 1:
             raise ValueError("No Legal Move!")
         # action
-        self.board[OPPONENT][action] = 1
+        self.board[CURRENT][action] = 1
         self.board[COLOR] = abs(self.board[COLOR] - 1)
         self.state = np.r_[self.board[OPPONENT], self.board[CURRENT], self.board[COLOR]]
-        return self._check_win(self.board[OPPONENT].reshape(BOARD_SIZE, BOARD_SIZE))
+        return self._check_win(self.board[CURRENT].reshape(BOARD_SIZE, BOARD_SIZE))
 
     def render(self):
         if self.board[COLOR][0] == BLACK:
-            board = (self.board[CURRENT] * 2 + self.board[OPPONENT]).reshape(
+            board = (self.board[CURRENT] + self.board[OPPONENT] * 2).reshape(
                 BOARD_SIZE, BOARD_SIZE)
         else:
-            board = (self.board[CURRENT] + self.board[OPPONENT] * 2).reshape(
+            board = (self.board[CURRENT] * 2 + self.board[OPPONENT]).reshape(
                 BOARD_SIZE, BOARD_SIZE)
         count = np.sum(self.board[CURRENT] + self.board[OPPONENT])
         board_str = '\n  A B C D E F G H I\n'
