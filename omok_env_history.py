@@ -27,6 +27,9 @@ class OmokEnv:
             state_origin = self.state.reshape(17, BOARD_SIZE**2)
             self.history = deque([state_origin[i] for i in range(16)], maxlen=16)
             self.board = np.zeros((3, BOARD_SIZE**2), 'int8')
+            self.board[CURRENT] = state_origin[0]
+            self.board[OPPONENT] = state_origin[1]
+            self.board[COLOR] = state_origin[16]
         return self.state, self.board
 
     def step(self, action):
