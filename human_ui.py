@@ -26,7 +26,7 @@ GAMES = 1
 
 class HumanAgent:
     def get_action(self):
-        move_target = str(input('1a ~ 15: '))
+        move_target = str(input('1a ~ 15o: '))
         row = int(move_target[:1]) - 1
         col = COLUMN[move_target[1:2]]
         action = row * BOARD_SIZE + col
