@@ -11,10 +11,10 @@ OPPONENT = 1
 COLOR = 2
 BLACK = 1
 WHITE = 0
-BOARD_SIZE = 9
+BOARD_SIZE = 15
 
-SIMULATIONS = 3000
-GAMES = 1000
+SIMULATIONS = 2000
+GAMES = 20
 
 
 class MCTS:
@@ -63,7 +63,7 @@ class MCTS:
         start = time.time()
         print('Computing Moves', end='', flush=True)
         for sim in range(self.num_simul):
-            if (sim + 1) % (self.num_simul / 5) == 0:
+            if (sim + 1) % (self.num_simul / 10) == 0:
                 print('.', end='', flush=True)
             # reset state
             self.state, self.board = self.env_simul.reset(state)
@@ -161,7 +161,7 @@ def main():
     mcts = MCTS(SIMULATIONS)
     result = {'Black': 0, 'White': 0, 'Draw': 0}
     for game in range(GAMES):
-        print('#####  GAME: {}  #####'.format(game + 1))
+        print('##########   GAME: {}   ##########'.format(game + 1))
         # reset state
         state, board = env.reset()
         done = False

@@ -7,7 +7,7 @@ COLOR = 2
 BLACK = 1
 WHITE = 0
 COLOR_DICT = {1: 'Black', 0: 'White'}
-BOARD_SIZE = 9
+BOARD_SIZE = 15
 
 
 class OmokEnv:
@@ -59,11 +59,11 @@ class OmokEnv:
             board = (self.board[CURRENT] * 2 + self.board[OPPONENT]).reshape(
                 BOARD_SIZE, BOARD_SIZE)
         count = np.sum(self.board[CURRENT] + self.board[OPPONENT])
-        board_str = '\n  A B C D E F G H I\n'
+        board_str = '\n   A B C D E F G H I J K L M N O\n'
         for i in range(BOARD_SIZE):
             for j in range(BOARD_SIZE):
                 if j == 0:
-                    board_str += '{}'.format(i + 1)
+                    board_str += '{:2}'.format(i + 1)
                 if board[i][j] == 0:
                     board_str += ' .'
                 if board[i][j] == 1:
@@ -73,7 +73,7 @@ class OmokEnv:
                 if j == BOARD_SIZE - 1:
                     board_str += ' \n'
             if i == BOARD_SIZE - 1:
-                board_str += '  ***  MOVE: {} ***'.format(count)
+                board_str += '   --------  MOVE: {}  ---------'.format(count)
         print(board_str)
 
     def _check_win(self, board):
@@ -92,7 +92,7 @@ class OmokEnv:
                         reward = 1
                     else:
                         reward = -1
-                    print('#####  {} Win! #####'.format(COLOR_DICT[color]))
+                    print('#########   {} Win!  #########'.format(COLOR_DICT[color]))
                     return self.state, self.board, reward, done
                 if sum_diagonal_1 == 5 or sum_diagonal_2 == 5:
                     reward = 1
@@ -102,12 +102,12 @@ class OmokEnv:
                         reward = 1
                     else:
                         reward = -1
-                    print('#####  {} Win! #####'.format(COLOR_DICT[color]))
+                    print('#########   {} Win!  #########'.format(COLOR_DICT[color]))
                     return self.state, self.board, reward, done
         if np.sum(self.board_fill) == BOARD_SIZE**2 - 1:
             reward = 0
             done = True
-            print('#####    Draw!   #####')
+            print('#########     Draw!    #########')
             return self.state, self.board, reward, done
         else:  # continue
             reward = 0
@@ -151,3 +151,8 @@ class OmokEnvSimul(OmokEnv):
             reward = 0
             done = False
             return self.state, self.board, reward, done
+
+if __name__ == '__main__':
+    env = OmokEnv()
+    env.reset()
+    env.render()
