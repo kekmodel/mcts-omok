@@ -8,21 +8,25 @@ OPPONENT = 1
 COLOR = 2
 BLACK = 1
 WHITE = 0
-BOARD_SIZE = 9
-COLUMN = {"a": 0, "b": 1, "c": 2,
-          "d": 3, "e": 4, "f": 5,
-          "g": 6, "h": 7, "i": 8,
-          "A": 0, "B": 1, "C": 2,
-          "D": 3, "E": 4, "F": 5,
-          "G": 6, "H": 7, "I": 8}
+BOARD_SIZE = 15
+COLUMN = {"a":  0, "b":  1, "c":  2,
+          "d":  3, "e":  4, "f":  5,
+          "g":  6, "h":  7, "i":  8,
+          "j":  9, "k": 10, "l": 11,
+          "m": 12, "n": 13, "o": 14,
+          "A":  0, "B":  1, "C":  2,
+          "D":  3, "E":  4, "F":  5,
+          "G":  6, "H":  7, "I":  8,
+          "J":  9, "K": 10, "L": 11,
+          "M": 12, "N": 13, "O": 14}
 
-SIMULATIONS = 50000
-GAMES = 2
+SIMULATIONS = 30000
+GAMES = 1
 
 
 class HumanAgent:
     def get_action(self):
-        move_target = str(input('1a ~ 9i: '))
+        move_target = str(input('1a ~ 15: '))
         row = int(move_target[:1]) - 1
         col = COLUMN[move_target[1:2]]
         action = row * BOARD_SIZE + col
@@ -47,7 +51,7 @@ if __name__ == '__main__':
     manager = HumanUI()
     result = {-1: 0, 0: 0, 1: 0}
     for game in range(GAMES):
-        print('#####  Game: {}  #####'.format(game + 1))
+        print('##########   Game: {}   ##########'.format(game + 1))
         state, board = env.reset()
         done = False
         idx = 0

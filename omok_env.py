@@ -15,6 +15,7 @@ class OmokEnv:
         self.board = None
         self.board_fill = None
         self.done = None
+        self.action = None
 
     def reset(self, state=None):
         if state is None:  # initialize state
@@ -26,6 +27,7 @@ class OmokEnv:
         return self.state, self.board
 
     def step(self, action):
+        self.action = action
         # board
         self.board = self.state.reshape(3, BOARD_SIZE**2)
         self.board_fill = (self.board[CURRENT] + self.board[OPPONENT])
@@ -38,6 +40,18 @@ class OmokEnv:
         return self._check_win(self.board[CURRENT].reshape(BOARD_SIZE, BOARD_SIZE))
 
     def render(self):
+        action_coord = None
+        action_right = None
+        if self.action is not None:
+            if (self.action + 1) % BOARD_SIZE == 0:
+                action_right = None
+            else:
+                action_right_x = (self.action + 1) // BOARD_SIZE
+                action_right_y = (self.action + 1) % BOARD_SIZE
+                action_right = (action_right_x, action_right_y)
+            action_coord_x = self.action // BOARD_SIZE
+            action_coord_y = self.action % BOARD_SIZE
+            action_coord = (action_coord_x, action_coord_y)
         if self.board[COLOR][0] == BLACK:
             board = (self.board[CURRENT] + self.board[OPPONENT] * 2).reshape(
                 BOARD_SIZE, BOARD_SIZE)
@@ -45,21 +59,33 @@ class OmokEnv:
             board = (self.board[CURRENT] * 2 + self.board[OPPONENT]).reshape(
                 BOARD_SIZE, BOARD_SIZE)
         count = np.sum(self.board[CURRENT] + self.board[OPPONENT])
-        board_str = '\n  A B C D E F G H I\n'
+        board_str = '\n   A B C D E F G H I\n'
         for i in range(BOARD_SIZE):
             for j in range(BOARD_SIZE):
                 if j == 0:
-                    board_str += '{}'.format(i + 1)
+                    board_str += '{:2}'.format(i + 1)
                 if board[i][j] == 0:
-                    board_str += ' .'
+                    if (i, j) == action_right:
+                        board_str += '.'
+                    else:
+                        board_str += ' .'
                 if board[i][j] == 1:
-                    board_str += ' O'
+                    if (i, j) == action_coord:
+                        board_str += '(O)'
+                    elif (i, j) == action_right:
+                        board_str += 'O'
+                    else:
+                        board_str += ' O'
                 if board[i][j] == 2:
-                    board_str += ' X'
+                    if (i, j) == action_coord:
+                        board_str += '(X)'
+                    elif (i, j) == action_right:
+                        board_str += 'X'
+                    else:
+                        board_str += ' X'
                 if j == BOARD_SIZE - 1:
                     board_str += ' \n'
-            if i == BOARD_SIZE - 1:
-                board_str += '  ***  MOVE: {} ***'.format(count)
+        board_str += '   ***  MOVE: {} ***'.format(count)
         print(board_str)
 
     def _check_win(self, board):
@@ -142,4 +168,11 @@ class OmokEnvSimul(OmokEnv):
 if __name__ == '__main__':
     env = OmokEnv()
     env.reset()
+    env.step(3)
+    env.render()
+    env.step(2)
+    env.render()
+    env.step(1)
+    env.render()
+    env.step(80)
     env.render()
