@@ -16,6 +16,7 @@ class OmokEnv:
         self.board = None
         self.history = None
         self.done = None
+        self.action = None
 
     def reset(self, state=None):
         if state is None:  # initialize state
@@ -33,6 +34,7 @@ class OmokEnv:
         return self.state, self.board
 
     def step(self, action):
+        self.action = action
         # board
         state_origin = self.state.reshape(17, BOARD_SIZE**2)
         self.board = np.zeros((3, BOARD_SIZE**2), 'int8')
@@ -40,11 +42,10 @@ class OmokEnv:
         self.board[OPPONENT] = state_origin[0]
         self.board[COLOR] = state_origin[16]
         self.board_fill = (self.board[CURRENT] + self.board[OPPONENT])
-        if self.board_fill[action] == 1:
+        if self.board_fill[self.action] == 1:
             raise ValueError("No Legal Move!")
-
         # action
-        self.board[CURRENT][action] = 1
+        self.board[CURRENT][self.action] = 1
         self.history.appendleft(self.board[CURRENT])
         self.board[COLOR] = abs(self.board[COLOR] - 1)
         self.state = np.r_[np.asarray(self.history).flatten(),
@@ -52,6 +53,18 @@ class OmokEnv:
         return self._check_win(self.board[CURRENT].reshape(BOARD_SIZE, BOARD_SIZE))
 
     def render(self):
+        action_coord = None
+        action_right = None
+        if self.action is not None:
+            if (self.action + 1) % BOARD_SIZE == 0:
+                action_right = None
+            else:
+                action_right_x = (self.action + 1) // BOARD_SIZE
+                action_right_y = (self.action + 1) % BOARD_SIZE
+                action_right = (action_right_x, action_right_y)
+            action_coord_x = self.action // BOARD_SIZE
+            action_coord_y = self.action % BOARD_SIZE
+            action_coord = (action_coord_x, action_coord_y)        
         if self.board[COLOR][0] == BLACK:
             board = (self.board[CURRENT] + self.board[OPPONENT] * 2).reshape(
                 BOARD_SIZE, BOARD_SIZE)
@@ -65,15 +78,27 @@ class OmokEnv:
                 if j == 0:
                     board_str += '{}'.format(i + 1)
                 if board[i][j] == 0:
-                    board_str += ' .'
+                    if (i, j) == action_right:
+                        board_str += '.'
+                    else:
+                        board_str += ' .'
                 if board[i][j] == 1:
-                    board_str += ' O'
+                    if (i, j) == action_coord:
+                        board_str += '(O)'
+                    elif (i, j) == action_right:
+                        board_str += 'O'
+                    else:
+                        board_str += ' O'
                 if board[i][j] == 2:
-                    board_str += ' X'
+                    if (i, j) == action_coord:
+                        board_str += '(X)'
+                    elif (i, j) == action_right:
+                        board_str += 'X'
+                    else:
+                        board_str += ' X'
                 if j == BOARD_SIZE - 1:
                     board_str += ' \n'
-            if i == BOARD_SIZE - 1:
-                board_str += '  ***  MOVE: {} ***'.format(count)
+        board_str += '  ***  MOVE: {} ***'.format(count)
         print(board_str)
 
     def _check_win(self, board):
@@ -151,3 +176,9 @@ class OmokEnvSimul(OmokEnv):
             reward = 0
             done = False
             return self.state, self.board, reward, done
+
+
+if __name__ == '__main__':
+    env = OmokEnv()
+    env.reset()
+    env.step(30)

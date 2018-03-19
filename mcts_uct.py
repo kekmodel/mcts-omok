@@ -56,6 +56,7 @@ class MCTS:
         root_key = md5(self.root.tostring()).hexdigest()
         # argmax Q
         action = self._selection(root_key, c_ucb=0)
+        print('')
         print(self.ucb.reshape(BOARD_SIZE, BOARD_SIZE).round(decimals=4))
         return action
 
