@@ -7,7 +7,7 @@ COLOR = 2
 BLACK = 1
 WHITE = 0
 COLOR_DICT = {1: 'Black', 0: 'White'}
-BOARD_SIZE = 15
+BOARD_SIZE = 9
 
 
 class OmokEnv:
@@ -20,27 +20,27 @@ class OmokEnv:
 
     def reset(self, state=None):
         if state is None:  # initialize state
-            self.state = np.zeros((17 * BOARD_SIZE**2), 'int8')
-            self.history = deque([np.zeros((BOARD_SIZE**2), 'int8')] * 16, maxlen=16)
+            self.state = np.zeros((5 * BOARD_SIZE**2), 'int8')
+            self.history = deque([np.zeros((BOARD_SIZE**2), 'int8')] * 4, maxlen=4)
             self.board = np.zeros((3, BOARD_SIZE**2), 'int8')
         else:  # pass the state to the simulation's root
             self.state = state.copy()
-            state_origin = self.state.reshape(17, BOARD_SIZE**2)
-            self.history = deque([state_origin[i] for i in range(16)], maxlen=16)
+            state_origin = self.state.reshape(5, BOARD_SIZE**2)
+            self.history = deque([state_origin[i] for i in range(4)], maxlen=4)
             self.board = np.zeros((3, BOARD_SIZE**2), 'int8')
             self.board[CURRENT] = state_origin[1]
             self.board[OPPONENT] = state_origin[0]
-            self.board[COLOR] = state_origin[16]
+            self.board[COLOR] = state_origin[4]
         return self.state, self.board
 
     def step(self, action):
         self.action = action
         # board
-        state_origin = self.state.reshape(17, BOARD_SIZE**2)
+        state_origin = self.state.reshape(5, BOARD_SIZE**2)
         self.board = np.zeros((3, BOARD_SIZE**2), 'int8')
         self.board[CURRENT] = state_origin[1]
         self.board[OPPONENT] = state_origin[0]
-        self.board[COLOR] = state_origin[16]
+        self.board[COLOR] = state_origin[4]
         self.board_fill = (self.board[CURRENT] + self.board[OPPONENT])
         if self.board_fill[self.action] == 1:
             raise ValueError("No Legal Move!")
@@ -72,7 +72,7 @@ class OmokEnv:
             board = (self.board[CURRENT] * 2 + self.board[OPPONENT]).reshape(
                 BOARD_SIZE, BOARD_SIZE)
         count = np.sum(self.board[CURRENT] + self.board[OPPONENT])
-        board_str = '\n   A B C D E F G H I J K L M N O\n'
+        board_str = '\n   A B C D E F G H I\n'
         for i in range(BOARD_SIZE):
             for j in range(BOARD_SIZE):
                 if j == 0:
@@ -98,7 +98,7 @@ class OmokEnv:
                         board_str += ' X'
                 if j == BOARD_SIZE - 1:
                     board_str += ' \n'
-        board_str += '  ---------  MOVE: {} ----------'.format(count)
+        board_str += '  ---- MOVE: {} ----'.format(count)
         print(board_str)
 
     def _check_win(self, board):
