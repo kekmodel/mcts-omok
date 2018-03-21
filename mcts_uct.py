@@ -14,8 +14,8 @@ WHITE = 0
 BOARD_SIZE = 9
 HISTORY = 4
 
-SIMULATION = BOARD_SIZE**2 * 30
-GAME = 30
+SIMULATION = BOARD_SIZE**2 * 10
+GAME = 10
 
 
 class MCTS:
@@ -85,11 +85,11 @@ class MCTS:
                     self.key_memory.appendleft(key)
                     n_selection += 1
                 elif n_expansion == 0:
-                        # expansion
-                        action = self._expansion(key)
-                        self.action_memory.appendleft(action)
-                        self.key_memory.appendleft(key)
-                        n_expansion += 1
+                    # expansion
+                    action = self._expansion(key)
+                    self.action_memory.appendleft(action)
+                    self.key_memory.appendleft(key)
+                    n_expansion += 1
                 else:
                     # rollout
                     action = random.choice(self.legal_move)
@@ -186,7 +186,7 @@ def play():
         print('=' * 20, " {}  Game End  ".format(g + 1), '=' * 20)
         blw, whw, drw = result['Black'], result['White'], result['Draw']
         stat = ('Black Win: {}  White Win: {}  Draw: {}  Winrate: {:0.1f}%'.format(
-            blw, whw, drw, 1 / (1 + np.exp(whw) / np.exp(blw)) * 100))
+            blw, whw, drw, 1 / (1 + np.exp(whw / (g + 1)) / np.exp(blw / (g + 1))) * 100))
         print(stat, '\n')
 
 
