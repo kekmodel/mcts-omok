@@ -12,7 +12,7 @@ COLOR = 2
 BLACK = 1
 WHITE = 0
 BOARD_SIZE = 9
-HISTORY = 4
+HISTORY = 2
 
 SIMULATION = BOARD_SIZE**2 * 10
 GAME = 10
@@ -22,6 +22,7 @@ class MCTS:
     def __init__(self, n_simul, board_size, n_history):
         self.env_simul = OmokEnvSimul(board_size, n_history)
         self.n_simul = n_simul
+        self.board_size = board_size
         self.tree = None
         self.root = None
         self.state = None
@@ -39,11 +40,11 @@ class MCTS:
         self.reset_tree()
 
     def _reset(self):
-        self.key_memory = deque(maxlen=BOARD_SIZE**2)
-        self.action_memory = deque(maxlen=BOARD_SIZE**2)
+        self.key_memory = deque(maxlen=self.board_size**2)
+        self.action_memory = deque(maxlen=self.board_size**2)
 
     def reset_tree(self):
-        self.tree = defaultdict(lambda: np.zeros((BOARD_SIZE**2, 2), 'float'))
+        self.tree = defaultdict(lambda: np.zeros((self.board_size**2, 2), 'float'))
 
     def get_action(self, state, board):
         self.root = state.copy()
@@ -58,7 +59,7 @@ class MCTS:
         # argmax Q
         action = self._selection(root_key, c_ucb=0)
         print('')
-        print(self.ucb.reshape(BOARD_SIZE, BOARD_SIZE).round(decimals=4))
+        print(self.ucb.reshape(self.board_size, self.board_size).round(decimals=4))
         return action
 
     def _simulation(self, state):
@@ -122,8 +123,8 @@ class MCTS:
 
     def _ucb(self, edges, c_ucb):
         total_N = 0
-        ucb = np.zeros((BOARD_SIZE**2), 'float')
-        for i in range(BOARD_SIZE**2):
+        ucb = np.zeros((self.board_size**2), 'float')
+        for i in range(self.board_size**2):
             total_N += edges[i][N]
         # black's ucb
         if self.board[COLOR][0] == WHITE:
