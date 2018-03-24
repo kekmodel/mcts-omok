@@ -1,5 +1,5 @@
 from __future__ import print_function
-from omok_env import OmokEnv, OmokEnvSimul
+from omok_env import OmokEnv
 import time
 import sys
 from collections import deque, defaultdict
@@ -21,7 +21,7 @@ GAME = 1
 
 class MCTS:
     def __init__(self, n_simul, board_size, n_history):
-        self.env_simul = OmokEnvSimul(board_size, n_history)
+        self.env_simul = OmokEnv(board_size, n_history, display=False)
         self.n_simul = n_simul
         self.board_size = board_size
         self.tree = None
