@@ -1,6 +1,7 @@
 from __future__ import print_function
 from collections import deque
 import numpy as np
+from numba import jit
 
 CURRENT = 0
 OPPONENT = 1
@@ -41,6 +42,7 @@ class OmokEnv:
             self.action = None
         return self.state, self.board
 
+    @jit
     def step(self, action):
         self.action = action
         # board
@@ -61,6 +63,7 @@ class OmokEnv:
         return self._check_win(
             self.board[CURRENT].reshape(self.board_size, self.board_size), self.display)
 
+    @jit
     def _check_win(self, board, display=True):
         current_grid = np.zeros((5, 5))
         for row in range(self.board_size - 5 + 1):
@@ -102,6 +105,7 @@ class OmokEnv:
             done = False
             return self.state, self.board, reward, done
 
+    @jit
     def render(self):
         action_coord = None
         action_right = None

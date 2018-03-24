@@ -1,7 +1,8 @@
 from __future__ import print_function
 from omok_env import OmokEnv
-from mcts import MCTS
+from mcts_uct import MCTS
 import numpy as np
+from numba import jit
 
 N, Q = 0, 1
 CURRENT = 0
@@ -10,7 +11,7 @@ COLOR = 2
 BLACK = 1
 WHITE = 0
 BOARD_SIZE = 9
-HISTORY = 2
+HISTORY = 4
 COLUMN = {"a": 0, "b": 1, "c": 2,
           "d": 3, "e": 4, "f": 5,
           "g": 6, "h": 7, "i": 8,
@@ -22,10 +23,10 @@ COLUMN = {"a": 0, "b": 1, "c": 2,
           "J": 9, "K": 10, "L": 11,
           "M": 12, "N": 13, "O": 14}
 
-SIMULATION = BOARD_SIZE**2 * 10
+SIMULATION = BOARD_SIZE**2 * 30
 GAME = 1
 
-
+@jit
 class HumanAgent:
     def get_action(self):
         laskt_str = str(BOARD_SIZE)
@@ -52,11 +53,14 @@ class HumanUI:
             action = self.ai.get_action(state, board)
         return action
 
-
+@jit
 def play():
     env = OmokEnv(BOARD_SIZE, HISTORY)
     manager = HumanUI()
     result = {-1: 0, 0: 0, 1: 0}
+    z = 0
+    g = 0
+    idx = 0
     for g in range(GAME):
         print('##########   Game: {}   ##########'.format(g + 1))
         state, board = env.reset()
