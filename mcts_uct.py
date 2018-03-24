@@ -1,7 +1,8 @@
+from __future__ import print_function
 from omok_env import OmokEnv, OmokEnvSimul
 import time
+import sys
 from collections import deque, defaultdict
-from hashlib import md5
 import numpy as np
 from numpy import random
 
@@ -15,7 +16,7 @@ BOARD_SIZE = 9
 HISTORY = 2
 
 SIMULATION = BOARD_SIZE**2 * 10
-GAME = 10
+GAME = 1
 
 
 class MCTS:
@@ -55,7 +56,7 @@ class MCTS:
         self.legal_move = np.argwhere(board_fill == 0).flatten()
         self.no_legal_move = np.argwhere(board_fill != 0).flatten()
         # root state's key
-        root_key = md5(self.root.tostring()).hexdigest()
+        root_key = hash(self.root.tostring())
         # argmax Q
         action = self._selection(root_key, c_ucb=0)
         print('')
@@ -64,10 +65,12 @@ class MCTS:
 
     def _simulation(self, state):
         start = time.time()
-        print('Computing Moves', end='', flush=True)
+        print('Computing Moves', end='')
+        sys.stdout.flush()
         for sim in range(self.n_simul):
             if (sim + 1) % (self.n_simul / 10) == 0:
-                print('.', end='', flush=True)
+                print('.', end='')
+                sys.stdout.flush()
             # reset state
             self.state, self.board = self.env_simul.reset(state)
             done = False
@@ -77,7 +80,7 @@ class MCTS:
                 board_fill = self.board[CURRENT] + self.board[OPPONENT]
                 self.legal_move = np.argwhere(board_fill == 0).flatten()
                 self.no_legal_move = np.argwhere(board_fill != 0).flatten()
-                key = md5(self.state.tostring()).hexdigest()
+                key = hash(self.state.tostring())
                 # search my tree
                 if key in self.tree:
                     # selection
