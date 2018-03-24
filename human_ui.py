@@ -26,7 +26,7 @@ COLUMN = {"a": 0, "b": 1, "c": 2,
 SIMULATION = BOARD_SIZE**2 * 30
 GAME = 1
 
-@jit
+
 class HumanAgent:
     def get_action(self):
         laskt_str = str(BOARD_SIZE)
