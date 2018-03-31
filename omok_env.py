@@ -24,16 +24,19 @@ class OmokEnv:
 
     def reset(self, state=None):
         if state is None:  # initialize state
-            self.state = np.zeros(((self.n_history * 2 + 1) * self.board_size**2), 'int8')
+            self.state = np.zeros(
+                ((self.n_history * 2 + 1) * self.board_size**2), 'int8')
             self.history = deque([np.zeros((self.board_size**2), 'int8')] *
                                  self.n_history * 2, maxlen=self.n_history * 2)
             self.board = np.zeros((3, self.board_size**2), 'int8')
             self.action = None
         else:  # pass the state to the simulation's root
             self.state = state.copy()
-            state_origin = self.state.reshape(self.n_history * 2 + 1, self.board_size**2)
+            state_origin = self.state.reshape(
+                self.n_history * 2 + 1, self.board_size**2)
             self.history = deque([state_origin[i]
-                                  for i in range(self.n_history * 2)], maxlen=self.n_history * 2)
+                                  for i in range(self.n_history * 2)],
+                                 maxlen=self.n_history * 2)
             self.board = np.zeros((3, self.board_size**2), 'int8')
             self.board[CURRENT] = state_origin[1]
             self.board[OPPONENT] = state_origin[0]
@@ -44,7 +47,8 @@ class OmokEnv:
     def step(self, action):
         self.action = action
         # board
-        state_origin = self.state.reshape(self.n_history * 2 + 1, self.board_size**2)
+        state_origin = self.state.reshape(
+            self.n_history * 2 + 1, self.board_size**2)
         self.board = np.zeros((3, self.board_size**2), 'int8')
         self.board[CURRENT] = state_origin[1]
         self.board[OPPONENT] = state_origin[0]
@@ -59,7 +63,8 @@ class OmokEnv:
         self.state = np.r_[np.asarray(self.history).flatten(),
                            np.asarray(self.board[COLOR]).flatten()]
         return self._check_win(
-            self.board[CURRENT].reshape(self.board_size, self.board_size), self.display)
+            self.board[CURRENT].reshape(
+                self.board_size, self.board_size), self.display)
 
     def _check_win(self, board, display=True):
         current_grid = np.zeros((5, 5))
@@ -78,7 +83,8 @@ class OmokEnv:
                     else:
                         reward = -1
                     if display:
-                        print('\n#########   {} Win!   #########'.format(COLOR_DICT[color]))
+                        print('\n#########   {} Win!   #########'.format(
+                            COLOR_DICT[color]))
                     return self.state, self.board, reward, done
                 if sum_diagonal_1 == 5 or sum_diagonal_2 == 5:
                     reward = 1
@@ -89,7 +95,8 @@ class OmokEnv:
                     else:
                         reward = -1
                     if display:
-                        print('\n#########   {} Win!   #########'.format(COLOR_DICT[color]))
+                        print('\n#########   {} Win!   #########'.format(
+                            COLOR_DICT[color]))
                     return self.state, self.board, reward, done
         if np.sum(self.board_fill) == self.board_size**2 - 1:
             reward = 0
@@ -148,8 +155,8 @@ class OmokEnv:
                         board_str += ' X'
                 if j == self.board_size - 1:
                     board_str += '\n'
-        board_str += '  ' + '-' * (self.board_size - 5) + \
-            ' MOVE: {} '.format(count) + '-' * (self.board_size - 5)
+        board_str += '  ' + '-' * (self.board_size - 6) + \
+            '  MOVE: {}  '.format(count) + '-' * (self.board_size - 6)
         print(board_str)
 
 

@@ -1,3 +1,4 @@
+
 from __future__ import print_function
 from omok_env import OmokEnv
 import time
@@ -14,8 +15,8 @@ BLACK = 1
 WHITE = 0
 BOARD_SIZE = 9
 HISTORY = 2
-THINK_TIME = 10
-GAME = 1
+THINK_TIME = 100
+GAME = 20
 
 
 class MCTS:
@@ -38,13 +39,14 @@ class MCTS:
         # init
         self._reset()
         self.reset_tree()
-    
+
     def _reset(self):
         self.key_memory = deque(maxlen=self.board_size**2)
         self.action_memory = deque(maxlen=self.board_size**2)
-    
+
     def reset_tree(self):
-        self.tree = defaultdict(lambda: np.zeros((self.board_size**2, 2), 'float'))
+        self.tree = defaultdict(
+            lambda: np.zeros((self.board_size**2, 2), 'float'))
 
     def get_action(self, state, board):
         self.root = state.copy()
@@ -59,7 +61,8 @@ class MCTS:
         # argmax Q
         action = self._selection(root_key, c_ucb=0)
         print('')
-        print(self.ucb.reshape(self.board_size, self.board_size).round(decimals=4))
+        print(self.ucb.reshape(
+            self.board_size, self.board_size).round(decimals=4))
         return action
 
     def _simulation(self, state):
@@ -70,7 +73,7 @@ class MCTS:
         sim = 0
         while True:
             sim += 1
-            if finish % (self.think_time / 10) < 0.034:
+            if finish % (self.think_time / 10) < 0.0335:
                 print('.', end='')
                 sys.stdout.flush()
             # reset state
@@ -99,7 +102,8 @@ class MCTS:
                 else:
                     # rollout
                     action = random.choice(self.legal_move)
-                self.state, self.board, reward, done = self.env_simul.step(action)
+                self.state, self.board, reward, done = \
+                    self.env_simul.step(action)
             if done:
                 # backup & reset memory
                 self._backup(reward, n_selection + n_expansion)
@@ -123,12 +127,10 @@ class MCTS:
         action = action[random.choice(len(action))]
         return action
 
-
     def _expansion(self, key):
         # only select once for rollout
         action = self._selection(key, c_ucb=1)
         return action
-
 
     def _ucb(self, edges, c_ucb):
         total_N = 0
@@ -166,12 +168,15 @@ class MCTS:
             edges[action][N] += 1
             edges[action][Q] += (reward - edges[action][Q]) / edges[action][N]
 
+
 def play():
     env = OmokEnv(BOARD_SIZE, HISTORY)
     mcts = MCTS(BOARD_SIZE, HISTORY, THINK_TIME)
     result = {'Black': 0, 'White': 0, 'Draw': 0}
     for g in range(GAME):
-        print('#' * (BOARD_SIZE - 4), ' GAME: {} '.format(g + 1), '#' * (BOARD_SIZE - 4))
+        print('#' * (BOARD_SIZE - 4),
+              ' GAME: {} '.format(g + 1),
+              '#' * (BOARD_SIZE - 4))
         # reset state
         state, board = env.reset()
         done = False
@@ -194,8 +199,10 @@ def play():
         print('')
         print('=' * 20, " {}  Game End  ".format(g + 1), '=' * 20)
         blw, whw, drw = result['Black'], result['White'], result['Draw']
-        stat = ('Black Win: {}  White Win: {}  Draw: {}  Winrate: {:0.1f}%'.format(
-            blw, whw, drw, 1 / (1 + np.exp(whw / (g + 1)) / np.exp(blw / (g + 1))) * 100))
+        stat = (
+            'Black Win: {}  White Win: {}  Draw: {}  Winrate: {:0.1f}%'.format(
+                blw, whw, drw,
+                1 / (1 + np.exp(whw / (g + 1)) / np.exp(blw / (g + 1))) * 100))
         print(stat, '\n')
 
 
