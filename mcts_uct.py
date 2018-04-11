@@ -1,4 +1,3 @@
-
 from __future__ import print_function
 from omok_env import OmokEnv
 import time
@@ -14,9 +13,9 @@ COLOR = 2
 BLACK = 1
 WHITE = 0
 BOARD_SIZE = 9
-HISTORY = 2
-THINK_TIME = 100
-GAME = 20
+HISTORY = 8
+THINK_TIME = 3600
+GAME = 1
 
 
 class MCTS:
@@ -68,14 +67,11 @@ class MCTS:
     def _simulation(self, state):
         start = time.time()
         finish = 0
-        print('Computing Moves', end='')
-        sys.stdout.flush()
         sim = 0
         while True:
             sim += 1
-            if finish % (self.think_time / 10) < 0.0335:
-                print('.', end='')
-                sys.stdout.flush()
+            print('\rsimulaton: {}'.format(sim), end='')
+            sys.stdout.flush()
             # reset state
             self.state, self.board = self.env_simul.reset(state)
             done = False
@@ -111,7 +107,7 @@ class MCTS:
                 finish = time.time() - start
                 if finish >= self.think_time:
                     break
-        print('\n"{} Simulations End in {:0.0f}s"'.format(sim, finish))
+        print('\n"{} simulations end ({:0.0f}s)"'.format(sim, finish))
 
     def _selection(self, key, c_ucb):
         edges = self.tree[key]
