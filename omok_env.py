@@ -1,5 +1,6 @@
 from __future__ import print_function
 from collections import deque
+import sys
 import numpy as np
 
 CURRENT = 0
@@ -157,7 +158,7 @@ class OmokEnv:
                     board_str += '\n'
         board_str += '  ' + '-' * (self.board_size - 6) + \
             '  MOVE: {}  '.format(count) + '-' * (self.board_size - 6)
-        print(board_str)
+        print('{}'.format(board_str))
 
 
 if __name__ == '__main__':

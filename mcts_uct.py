@@ -13,16 +13,16 @@ COLOR = 2
 BLACK = 1
 WHITE = 0
 BOARD_SIZE = 9
-HISTORY = 8
-THINK_TIME = 3600
+HISTORY = 2
+N_SIMUL = 400
 GAME = 1
 
 
 class MCTS:
-    def __init__(self, board_size, n_history, think_time):
+    def __init__(self, board_size, n_history, n_simul):
         self.env_simul = OmokEnv(board_size, n_history, display=False)
         self.board_size = board_size
-        self.think_time = think_time
+        self.n_simul = n_simul
         self.tree = None
         self.root = None
         self.state = None
@@ -67,8 +67,8 @@ class MCTS:
     def _simulation(self, state):
         start = time.time()
         finish = 0
-        sim = 0
-        while True:
+        print('')
+        for sim in range(self.n_simul):
             sim += 1
             print('\rsimulaton: {}'.format(sim), end='')
             sys.stdout.flush()
@@ -105,9 +105,9 @@ class MCTS:
                 self._backup(reward, n_selection + n_expansion)
                 self._reset()
                 finish = time.time() - start
-                if finish >= self.think_time:
-                    break
-        print('\n"{} simulations end ({:0.0f}s)"'.format(sim, finish))
+                # if finish >= self.think_time:
+                #     break
+        print('\nsimulations end ({:0.0f}s)"'.format(sim, finish))
 
     def _selection(self, key, c_ucb):
         edges = self.tree[key]
@@ -167,7 +167,7 @@ class MCTS:
 
 def play():
     env = OmokEnv(BOARD_SIZE, HISTORY)
-    mcts = MCTS(BOARD_SIZE, HISTORY, THINK_TIME)
+    mcts = MCTS(BOARD_SIZE, HISTORY, N_SIMUL)
     result = {'Black': 0, 'White': 0, 'Draw': 0}
     for g in range(GAME):
         print('#' * (BOARD_SIZE - 4),
