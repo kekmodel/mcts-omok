@@ -9,8 +9,7 @@ OPPONENT = 1
 COLOR = 2
 BLACK = 1
 WHITE = 0
-BOARD_SIZE = 9
-HISTORY = 4
+HISTORY = 2  
 COLUMN = {"a": 0, "b": 1, "c": 2,
           "d": 3, "e": 4, "f": 5,
           "g": 6, "h": 7, "i": 8,
@@ -21,7 +20,8 @@ COLUMN = {"a": 0, "b": 1, "c": 2,
           "G": 6, "H": 7, "I": 8,
           "J": 9, "K": 10, "L": 11,
           "M": 12, "N": 13, "O": 14}
-N_SIMUL = 50000
+BOARD_SIZE = 9  # 9x9 ~ 15x15
+N_SIMUL = 50000  # number of simulations for 1 move
 GAME = 1
 
 
