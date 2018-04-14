@@ -4,7 +4,7 @@ import time
 import sys
 from collections import deque, defaultdict
 import numpy as np
-from numpy import random
+from numpy import random, sqrt, log, argwhere, zeros
 
 N, Q = 0, 1
 CURRENT = 0
@@ -45,7 +45,7 @@ class MCTS:
 
     def reset_tree(self):
         self.tree = defaultdict(
-            lambda: np.zeros((self.board_size**2, 2), 'float'))
+            lambda: zeros((self.board_size**2, 2), 'float'))
 
     def get_action(self, state, board):
         self.root = state.copy()
@@ -53,8 +53,8 @@ class MCTS:
         # init root board after simulatons
         self.board = board
         board_fill = self.board[CURRENT] + self.board[OPPONENT]
-        self.legal_move = np.argwhere(board_fill == 0).flatten()
-        self.no_legal_move = np.argwhere(board_fill != 0).flatten()
+        self.legal_move = argwhere(board_fill == 0).flatten()
+        self.no_legal_move = argwhere(board_fill != 0).flatten()
         # root state's key
         root_key = hash(self.root.tostring())
         # argmax Q
@@ -69,8 +69,7 @@ class MCTS:
         finish = 0
         print('')
         for sim in range(self.n_simul):
-            sim += 1
-            print('\rsimulaton: {}'.format(sim), end='')
+            print('\rsimulation: {}'.format(sim + 1), end='')
             sys.stdout.flush()
             # reset state
             self.state, self.board = self.env_simul.reset(state)
@@ -79,8 +78,8 @@ class MCTS:
             n_expansion = 0
             while not done:
                 board_fill = self.board[CURRENT] + self.board[OPPONENT]
-                self.legal_move = np.argwhere(board_fill == 0).flatten()
-                self.no_legal_move = np.argwhere(board_fill != 0).flatten()
+                self.legal_move = argwhere(board_fill == 0).flatten()
+                self.no_legal_move = argwhere(board_fill != 0).flatten()
                 key = hash(self.state.tostring())
                 # search my tree
                 if key in self.tree:
@@ -107,19 +106,18 @@ class MCTS:
                 finish = time.time() - start
                 # if finish >= self.think_time:
                 #     break
-        print('\nsimulations end ({:0.0f}s)"'.format(sim, finish))
+        print('\nsimulations end ({:0.0f}s)"'.format(sim + 1, finish))
 
     def _selection(self, key, c_ucb):
         edges = self.tree[key]
-        # get ucb
-        ucb = self._ucb(edges, c_ucb)
+        ucb = self._get_ucb(edges, c_ucb)
         self.ucb = ucb
         if self.board[COLOR][0] == WHITE:
             # black's choice
-            action = np.argwhere(ucb == ucb.max()).flatten()
+            action = argwhere(ucb == ucb.max()).flatten()
         else:
             # white's choice
-            action = np.argwhere(ucb == ucb.min()).flatten()
+            action = argwhere(ucb == ucb.min()).flatten()
         action = action[random.choice(len(action))]
         return action
 
@@ -128,9 +126,9 @@ class MCTS:
         action = self._selection(key, c_ucb=1)
         return action
 
-    def _ucb(self, edges, c_ucb):
+    def _get_ucb(self, edges, c_ucb):
         total_N = 0
-        ucb = np.zeros((self.board_size**2), 'float')
+        ucb = zeros((self.board_size**2), 'float')
         for i in range(self.board_size**2):
             total_N += edges[i][N]
         # black's ucb
@@ -138,7 +136,7 @@ class MCTS:
             for move in self.legal_move:
                 if edges[move][N] != 0:
                     ucb[move] = edges[move][Q] + c_ucb * \
-                        np.sqrt(2 * np.log(total_N) / edges[move][N])
+                        sqrt(2 * log(total_N) / edges[move][N])
                 else:
                     ucb[move] = np.inf
             for move in self.no_legal_move:
@@ -148,7 +146,7 @@ class MCTS:
             for move in self.legal_move:
                 if edges[move][N] != 0:
                     ucb[move] = edges[move][Q] - c_ucb * \
-                        np.sqrt(2 * np.log(total_N) / edges[move][N])
+                        sqrt(2 * log(total_N) / edges[move][N])
                 else:
                     ucb[move] = -np.inf
             for move in self.no_legal_move:
@@ -156,7 +154,7 @@ class MCTS:
         return ucb
 
     def _backup(self, reward, steps):
-        # steps = n_selection + n_expansion
+        # steps is n_selection + n_expansion
         # update edges in my tree
         for i in range(steps):
             edges = self.tree[self.key_memory[i]]
