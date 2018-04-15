@@ -27,17 +27,17 @@ GAME = 1
 
 class HumanAgent:
     def get_action(self):
-        laskt_str = str(BOARD_SIZE)
+        last_str = str(BOARD_SIZE)
         for k, v in COLUMN.items():
             if v == BOARD_SIZE - 1:
-                laskt_str += k
+                last_str += k
                 break
-        move_target = input('1a ~ {}: '.format(laskt_str)).strip()
+        move_target = input('1a ~ {}: '.format(last_str)).strip()
         try:
             row = int(move_target[:1]) - 1
             col = COLUMN[move_target[1:2]]
             action = row * BOARD_SIZE + col
-        except:
+        except KeyError:
             self.get_action()
         return action
 
