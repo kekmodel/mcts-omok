@@ -106,7 +106,7 @@ class MCTS:
                 finish = time.time() - start
                 # if finish >= self.think_time:
                 #     break
-        print('\nsimulations end ({:0.0f}s)"'.format(finish))
+        print('simulations end ({:0.0f}s)"'.format(finish))
 
     def _selection(self, key, c_ucb):
         edges = self.tree[key]
