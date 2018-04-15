@@ -67,7 +67,6 @@ class MCTS:
     def _simulation(self, state):
         start = time.time()
         finish = 0
-        print('')
         for sim in range(self.n_simul):
             print('\rsimulation: {}'.format(sim + 1), end='')
             sys.stdout.flush()
