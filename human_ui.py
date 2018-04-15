@@ -33,12 +33,9 @@ class HumanAgent:
                 last_str += k
                 break
         move_target = input('1a ~ {}: '.format(last_str)).strip()
-        try:
-            row = int(move_target[:1]) - 1
-            col = COLUMN[move_target[1:2]]
-            action = row * BOARD_SIZE + col
-        except KeyError:
-            self.get_action()
+        row = int(move_target[:1]) - 1
+        col = COLUMN[move_target[1:2]]
+        action = row * BOARD_SIZE + col
         return action
 
 
