@@ -6,15 +6,15 @@ from collections import deque, defaultdict
 import numpy as np
 from numpy import random, sqrt, argwhere, zeros
 
-N, Q = 0, 1
+N, W, Q = 0, 1, 2
 CURRENT = 0
 OPPONENT = 1
 COLOR = 2
 BLACK = 1
 WHITE = 0
 BOARD_SIZE = 9
-HISTORY = 8
-N_SIMUL = 10000
+HISTORY = 2
+N_SIMUL = 8000
 GAME = 1
 
 
@@ -29,7 +29,6 @@ class MCTS:
         self.board = None
         self.legal_move = None
         self.no_legal_move = None
-        self.pucb = None
 
         # used for backup
         self.key_memory = None
@@ -44,8 +43,7 @@ class MCTS:
         self.action_memory = deque(maxlen=self.board_size**2)
 
     def reset_tree(self):
-        self.tree = defaultdict(
-            lambda: zeros((self.board_size**2, 2), 'float'))
+        self.tree = defaultdict(lambda: zeros((self.board_size**2, 3)))
 
     def get_action(self, state, board):
         self.root = state.copy()
@@ -59,9 +57,6 @@ class MCTS:
         root_key = hash(self.root.tostring())
         # argmax Q or argmin Q
         action = self._selection(root_key, c_pucb=0)
-        print('')
-        print(self.pucb.reshape(
-            self.board_size, self.board_size).round(decimals=3))
         return action
 
     def _simulation(self, state):
@@ -110,7 +105,18 @@ class MCTS:
     def _selection(self, key, c_pucb):
         edges = self.tree[key]
         pucb = self._get_pucb(edges, c_pucb)
-        self.pucb = pucb
+
+        if c_pucb == 0:
+            visit = zeros(self.board_size**2)
+            for i, edge in enumerate(edges):
+                visit[i] = edge[N]
+            print('')
+            print('visit count')
+            print(visit.reshape(self.board_size, self.board_size).round())
+            action = argwhere(visit == visit.max()).flatten()
+            action = action[random.choice(len(action))]
+            return action
+
         if self.board[COLOR][0] == WHITE:
             # black's choice
             action = argwhere(pucb == pucb.max()).flatten()
@@ -128,7 +134,7 @@ class MCTS:
     def _get_pucb(self, edges, c_pucb):
         total_N = 0
         prior = 1/len(self.legal_move)
-        pucb = zeros((self.board_size**2), 'float')
+        pucb = zeros(self.board_size**2)
         for i in range(self.board_size**2):
             total_N += edges[i][N]
         # black's pucb
@@ -154,7 +160,8 @@ class MCTS:
             edges = self.tree[self.key_memory[i]]
             action = self.action_memory[i]
             edges[action][N] += 1
-            edges[action][Q] += (reward - edges[action][Q]) / edges[action][N]
+            edges[action][W] += reward
+            edges[action][Q] = edges[action][W] / edges[action][N]
 
 
 def play():
