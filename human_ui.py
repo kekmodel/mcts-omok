@@ -14,12 +14,7 @@ COLUMN = {"a": 0, "b": 1, "c": 2,
           "d": 3, "e": 4, "f": 5,
           "g": 6, "h": 7, "i": 8,
           "j": 9, "k": 10, "l": 11,
-          "m": 12, "n": 13, "o": 14,
-          "A": 0, "B": 1, "C": 2,
-          "D": 3, "E": 4, "F": 5,
-          "G": 6, "H": 7, "I": 8,
-          "J": 9, "K": 10, "L": 11,
-          "M": 12, "N": 13, "O": 14}
+          "m": 12, "n": 13, "o": 14}
 BOARD_SIZE = 9  # 9x9 ~ 15x15
 N_SIMUL = 50000  # number of simulations for 1 move
 GAME = 1
@@ -32,7 +27,7 @@ class HumanAgent:
             if v == BOARD_SIZE - 1:
                 last_str += k
                 break
-        move_target = input('1a ~ {}: '.format(last_str)).strip()
+        move_target = input('1a ~ {}: '.format(last_str)).strip().lower()
         row = int(move_target[:1]) - 1
         col = COLUMN[move_target[1:2]]
         action = row * BOARD_SIZE + col
