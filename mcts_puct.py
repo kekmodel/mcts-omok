@@ -138,7 +138,7 @@ class MCTS:
                     pucb[move] = edges[move][Q] + \
                         c_pucb * prior * sqrt(total_N) / (edges[move][N] + 1)
                 else:
-                    pucb[move] = 0
+                    pucb[move] = 1
             for move in self.no_legal_move:
                 pucb[move] = -np.inf
         # white's pucb
@@ -148,7 +148,7 @@ class MCTS:
                     pucb[move] = edges[move][Q] - \
                         c_pucb * prior * sqrt(total_N) / (edges[move][N] + 1)
                 else:
-                    pucb[move] = 0
+                    pucb[move] = -1
             for move in self.no_legal_move:
                 pucb[move] = np.inf
         return pucb
