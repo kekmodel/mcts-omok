@@ -134,21 +134,15 @@ class MCTS:
         # black's pucb
         if self.board[COLOR][0] == WHITE:
             for move in self.legal_move:
-                if edges[move][N] != 0:
-                    pucb[move] = edges[move][Q] + \
-                        c_pucb * prior * sqrt(total_N) / (edges[move][N] + 1)
-                else:
-                    pucb[move] = 1
+                pucb[move] = edges[move][Q] + \
+                    c_pucb * prior * sqrt(total_N) / (edges[move][N] + 1)
             for move in self.no_legal_move:
                 pucb[move] = -np.inf
         # white's pucb
         else:
             for move in self.legal_move:
-                if edges[move][N] != 0:
-                    pucb[move] = edges[move][Q] - \
-                        c_pucb * prior * sqrt(total_N) / (edges[move][N] + 1)
-                else:
-                    pucb[move] = -1
+                pucb[move] = edges[move][Q] - \
+                    c_pucb * prior * sqrt(total_N) / (edges[move][N] + 1)
             for move in self.no_legal_move:
                 pucb[move] = np.inf
         return pucb
