@@ -1,6 +1,6 @@
 # mcts-omok
 ![omok](./img/omok.gif)
-- Use 100k simulations with UCT -
+/ - use 100k simulations with UCT -
 --------------------
 
 ### Vs. AI
