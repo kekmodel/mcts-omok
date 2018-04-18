@@ -1,9 +1,9 @@
 # mcts-omok
 ![omok](./img/omok.gif)
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; use 100k simulations with UCT
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; use 100k simulations with UCT
 
-<br/><br/>
+<br/>
 ### Vs. AI
 	$ python human_ui.py
 
