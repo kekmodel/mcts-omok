@@ -1,8 +1,9 @@
 # mcts-omok
 ![omok](./img/omok.gif)
+- Use 100k simulations with UCT -
 --------------------
 
-### VS AI
+### Vs. AI
 	$ python human_ui.py
 
 ### Self Play
