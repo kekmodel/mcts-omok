@@ -110,8 +110,7 @@ class MCTS:
             visit = zeros(self.board_size**2)
             for i, edge in enumerate(edges):
                 visit[i] = edge[N]
-            print('')
-            print('visit count')
+            print('\nvisit count')
             print(visit.reshape(self.board_size, self.board_size).round())
             action = argwhere(visit == visit.max()).flatten()
             action = action[random.choice(len(action))]
@@ -202,4 +201,6 @@ def play():
 
 
 if __name__ == '__main__':
+    np.set_printoptions(suppress=True)
+    random.seed(0)
     play()
