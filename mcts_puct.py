@@ -14,7 +14,7 @@ BLACK = 1
 WHITE = 0
 BOARD_SIZE = 9
 HISTORY = 2
-N_SIMUL = 1000
+N_SIMUL = 100000
 GAME = 1
 
 
@@ -27,20 +27,10 @@ class MCTS:
         self.root = None
         self.state = None
         self.board = None
-        self.legal_move = None
-        self.no_legal_move = None
-
         # used for backup
-        self.key_memory = None
-        self.action_memory = None
-
-        # init
-        self._reset()
+        self.key_memory = deque()
+        self.action_memory = deque()
         self.reset_tree()
-
-    def _reset(self):
-        self.key_memory = deque(maxlen=self.board_size**2)
-        self.action_memory = deque(maxlen=self.board_size**2)
 
     def reset_tree(self):
         self.tree = defaultdict(lambda: zeros((self.board_size**2, 2)))
@@ -52,7 +42,6 @@ class MCTS:
         self.board = board
         board_fill = self.board[CURRENT] + self.board[OPPONENT]
         self.legal_move = argwhere(board_fill == 0).flatten()
-        self.no_legal_move = argwhere(board_fill != 0).flatten()
         # root state's key
         root_key = hash(self.root.tostring())
         # argmax Q or argmin Q
@@ -68,12 +57,8 @@ class MCTS:
             # reset state
             self.state, self.board = self.env_simul.reset(state)
             done = False
-            n_selection = 0
-            n_expansion = 0
+            is_expansion = True
             while not done:
-                board_fill = self.board[CURRENT] + self.board[OPPONENT]
-                self.legal_move = argwhere(board_fill == 0).flatten()
-                self.no_legal_move = argwhere(board_fill != 0).flatten()
                 key = hash(self.state.tostring())
                 # search my tree
                 if key in self.tree:
@@ -81,26 +66,31 @@ class MCTS:
                     action = self._selection(key, c_pucb=5)
                     self.action_memory.appendleft(action)
                     self.key_memory.appendleft(key)
-                    n_selection += 1
-                elif n_expansion == 0:
+                elif is_expansion:
                     # expansion
-                    action = self._expansion(key)
+                    # only select once for rollout
+                    action = self._selection(key, c_pucb=5)
                     self.action_memory.appendleft(action)
                     self.key_memory.appendleft(key)
-                    n_expansion += 1
+                    is_expansion = False
                 else:
                     # rollout
-                    action = random.choice(self.legal_move)
+                    legal_move = self._get_legal_move(self.board)
+                    action = random.choice(legal_move)
                 self.state, self.board, reward, done = \
                     self.env_simul.step(action)
             if done:
                 # backup & reset memory
-                self._backup(reward, n_selection + n_expansion)
-                self._reset()
+                self._backup(reward)
                 finish = time.time() - start
                 # if finish >= self.think_time:
                 #     break
         print('\r{} simulations end ({:0.0f}s)'.format(sim + 1, finish))
+
+    def _get_legal_move(self, board):
+        board_fill = board[CURRENT] + board[OPPONENT]
+        legal_move = argwhere(board_fill == 0).flatten()
+        return legal_move
 
     def _selection(self, key, c_pucb):
         edges = self.tree[key]
@@ -123,34 +113,30 @@ class MCTS:
         action = action[random.choice(len(action))]
         return action
 
-    def _expansion(self, key):
-        # only select once for rollout
-        action = self._selection(key, c_pucb=5)
-        return action
-
     def _get_pucb(self, edges, c_pucb):
-        prior = 1/len(self.legal_move)
-        pucb = zeros(self.board_size**2)
+        legal_move = self._get_legal_move(self.board)
+        prior = 1/len(legal_move)
         total_N = edges.sum(0)[N]
         # black's pucb
         if self.board[COLOR][0] == WHITE:
-            pucb[self.legal_move] = edges[self.legal_move][Q] + \
-                c_pucb * prior * sqrt(total_N) / (edges[self.legal_move][N] + 1)
-            pucb[self.no_legal_move] = -np.inf
+            pucb = zeros(self.board_size**2) - np.inf
+            for move in legal_move:
+                pucb[move] = edges[move][Q] + \
+                    c_pucb * prior * sqrt(total_N) / (edges[move][N] + 1)
         # white's pucb
         else:
-            pucb[self.legal_move] = edges[self.legal_move[Q] - \
-                c_pucb * prior * sqrt(total_N) / (edges[self.legal_move][N] + 1)
-            pucb[self.no_legal_move] = np.inf
-
+            pucb = zeros(self.board_size**2) + np.inf
+            for move in legal_move:
+                pucb[move] = edges[move][Q] - \
+                    c_pucb * prior * sqrt(total_N) / (edges[move][N] + 1)
         return pucb
 
-    def _backup(self, reward, steps):
-        # steps is n_selection + n_expansion
+    def _backup(self, reward):
         # update edges in my tree
-        for i in range(steps):
-            edges = self.tree[self.key_memory[i]]
-            action = self.action_memory[i]
+        for _ in range(len(self.action_memory)):
+            key = self.key_memory.popleft()
+            action = self.action_memory.popleft()
+            edges = self.tree[key]
             edges[action][N] += 1
             edges[action][Q] += (reward - edges[action][Q]) / edges[action][N]
 
@@ -194,5 +180,5 @@ def play():
 
 if __name__ == '__main__':
     np.set_printoptions(suppress=True)
-    random.seed(0)
+    np.random.seed(0)
     play()

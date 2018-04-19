@@ -14,7 +14,7 @@ BLACK = 1
 WHITE = 0
 BOARD_SIZE = 9
 HISTORY = 2
-N_SIMUL = 10000
+N_SIMUL = 100000
 GAME = 1
 
 
@@ -201,5 +201,4 @@ def play():
 
 if __name__ == '__main__':
     np.set_printoptions(suppress=True)
-    random.seed(0)
     play()
