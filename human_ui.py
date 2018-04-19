@@ -1,23 +1,17 @@
 from __future__ import print_function
 from omok_env import OmokEnv
-from mcts_uct import MCTS
+from mcts_puct import MCTS
 import numpy as np
 
-N, Q = 0, 1
-CURRENT = 0
-OPPONENT = 1
-COLOR = 2
-BLACK = 1
-WHITE = 0
-HISTORY = 2  
+HISTORY = 2
+BOARD_SIZE = 9  # 9x9 ~ 15x15
+N_SIMUL = 50000  # number of simulations for 1 move
+GAME = 1
 COLUMN = {"a": 0, "b": 1, "c": 2,
           "d": 3, "e": 4, "f": 5,
           "g": 6, "h": 7, "i": 8,
           "j": 9, "k": 10, "l": 11,
           "m": 12, "n": 13, "o": 14}
-BOARD_SIZE = 9  # 9x9 ~ 15x15
-N_SIMUL = 50000  # number of simulations for 1 move
-GAME = 1
 
 
 class HumanAgent:
@@ -84,4 +78,6 @@ def main():
 
 
 if __name__ == '__main__':
+    np.set_printoptions(suppress=True)
+    np.random.seed(0)
     main()

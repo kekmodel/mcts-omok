@@ -6,7 +6,7 @@ from collections import deque, defaultdict
 import numpy as np
 from numpy import random, sqrt, argwhere, zeros
 
-N, W, Q = 0, 1, 2
+N, Q = 0, 1
 CURRENT = 0
 OPPONENT = 1
 COLOR = 2
@@ -14,7 +14,7 @@ BLACK = 1
 WHITE = 0
 BOARD_SIZE = 9
 HISTORY = 2
-N_SIMUL = 8000
+N_SIMUL = 1000
 GAME = 1
 
 
@@ -43,7 +43,7 @@ class MCTS:
         self.action_memory = deque(maxlen=self.board_size**2)
 
     def reset_tree(self):
-        self.tree = defaultdict(lambda: zeros((self.board_size**2, 3)))
+        self.tree = defaultdict(lambda: zeros((self.board_size**2, 2)))
 
     def get_action(self, state, board):
         self.root = state.copy()
@@ -107,11 +107,8 @@ class MCTS:
         pucb = self._get_pucb(edges, c_pucb)
 
         if c_pucb == 0:
-            visit = zeros(self.board_size**2)
-            for i, edge in enumerate(edges):
-                visit[i] = edge[N]
-            print('')
-            print('visit count')
+            visit = edges[:, N]
+            print('\nvisit count')
             print(visit.reshape(self.board_size, self.board_size).round())
             action = argwhere(visit == visit.max()).flatten()
             action = action[random.choice(len(action))]
@@ -132,25 +129,20 @@ class MCTS:
         return action
 
     def _get_pucb(self, edges, c_pucb):
-        total_N = 0
         prior = 1/len(self.legal_move)
         pucb = zeros(self.board_size**2)
-        for i in range(self.board_size**2):
-            total_N += edges[i][N]
+        total_N = edges.sum(0)[N]
         # black's pucb
         if self.board[COLOR][0] == WHITE:
-            for move in self.legal_move:
-                pucb[move] = edges[move][Q] + \
-                    c_pucb * prior * sqrt(total_N) / (edges[move][N] + 1)
-            for move in self.no_legal_move:
-                pucb[move] = -np.inf
+            pucb[self.legal_move] = edges[self.legal_move][Q] + \
+                c_pucb * prior * sqrt(total_N) / (edges[self.legal_move][N] + 1)
+            pucb[self.no_legal_move] = -np.inf
         # white's pucb
         else:
-            for move in self.legal_move:
-                pucb[move] = edges[move][Q] - \
-                    c_pucb * prior * sqrt(total_N) / (edges[move][N] + 1)
-            for move in self.no_legal_move:
-                pucb[move] = np.inf
+            pucb[self.legal_move] = edges[self.legal_move[Q] - \
+                c_pucb * prior * sqrt(total_N) / (edges[self.legal_move][N] + 1)
+            pucb[self.no_legal_move] = np.inf
+
         return pucb
 
     def _backup(self, reward, steps):
@@ -160,8 +152,7 @@ class MCTS:
             edges = self.tree[self.key_memory[i]]
             action = self.action_memory[i]
             edges[action][N] += 1
-            edges[action][W] += reward
-            edges[action][Q] = edges[action][W] / edges[action][N]
+            edges[action][Q] += (reward - edges[action][Q]) / edges[action][N]
 
 
 def play():
@@ -202,4 +193,6 @@ def play():
 
 
 if __name__ == '__main__':
+    np.set_printoptions(suppress=True)
+    random.seed(0)
     play()

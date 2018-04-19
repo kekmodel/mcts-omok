@@ -200,4 +200,6 @@ def play():
 
 
 if __name__ == '__main__':
+    np.set_printoptions(suppress=True)
+    random.seed(0)
     play()
