@@ -44,7 +44,7 @@ class HumanUI:
 def main():
     env = OmokEnv(BOARD_SIZE, HISTORY)
     manager = HumanUI()
-    result = {-1: 0, 0: 0, 1: 0}
+    result = {'Black': 0, 'White': 0, 'Draw': 0}
     for g in range(GAME):
         print('##########   Game: {}   ##########'.format(g + 1))
         state, board = env.reset()
