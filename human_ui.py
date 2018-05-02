@@ -79,5 +79,5 @@ def main():
 
 if __name__ == '__main__':
     np.set_printoptions(suppress=True)
-    np.random.seed(0)
+    np.random.seed(42)
     main()

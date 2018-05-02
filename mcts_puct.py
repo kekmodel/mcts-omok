@@ -14,8 +14,8 @@ BLACK = 1
 WHITE = 0
 BOARD_SIZE = 9
 HISTORY = 2
-N_SIMUL = 100000
-GAME = 1
+N_SIMUL = 1600
+GAME = 30
 
 
 class MCTS:
@@ -58,6 +58,7 @@ class MCTS:
             self.state, self.board = self.env_simul.reset(state)
             done = False
             is_expansion = True
+
             while not done:
                 key = hash(self.state.tostring())
                 # search my tree
@@ -66,19 +67,17 @@ class MCTS:
                     action = self._selection(key, c_pucb=5)
                     self.action_memory.appendleft(action)
                     self.key_memory.appendleft(key)
-                elif is_expansion:
-                    # expansion
-                    # only select once for rollout
-                    action = self._selection(key, c_pucb=5)
-                    self.action_memory.appendleft(action)
-                    self.key_memory.appendleft(key)
-                    is_expansion = False
                 else:
-                    # rollout
+                    # expansion
                     legal_move = self._get_legal_move(self.board)
                     action = random.choice(legal_move)
-                self.state, self.board, reward, done = \
-                    self.env_simul.step(action)
+                    if is_expansion:
+                        self.action_memory.appendleft(action)
+                        self.key_memory.appendleft(key)
+                        is_expansion = False
+
+                self.state, self.board, reward, done = self.env_simul.step(action)
+
             if done:
                 # backup & reset memory
                 self._backup(reward)
@@ -133,7 +132,7 @@ class MCTS:
 
     def _backup(self, reward):
         # update edges in my tree
-        for _ in range(len(self.action_memory)):
+        while self.action_memory:
             key = self.key_memory.popleft()
             action = self.action_memory.popleft()
             edges = self.tree[key]
