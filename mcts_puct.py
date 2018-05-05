@@ -14,8 +14,8 @@ BLACK = 1
 WHITE = 0
 BOARD_SIZE = 9
 HISTORY = 2
-N_SIMUL = 1600
-GAME = 30
+N_SIMUL = 5000
+GAME = 5
 
 
 class MCTS:
@@ -40,8 +40,6 @@ class MCTS:
         self._simulation(state)
         # init root board after simulatons
         self.board = board
-        board_fill = self.board[CURRENT] + self.board[OPPONENT]
-        self.legal_move = argwhere(board_fill == 0).flatten()
         # root state's key
         root_key = hash(self.root.tostring())
         # argmax Q or argmin Q
@@ -69,7 +67,7 @@ class MCTS:
                     self.key_memory.appendleft(key)
                 else:
                     # expansion
-                    legal_move = self._get_legal_move(self.board)
+                    legal_move, _ = self._get_legal_move(self.board)
                     action = random.choice(legal_move)
                     if is_expansion:
                         self.action_memory.appendleft(action)
@@ -88,8 +86,8 @@ class MCTS:
 
     def _get_legal_move(self, board):
         board_fill = board[CURRENT] + board[OPPONENT]
-        legal_move = argwhere(board_fill == 0).flatten()
-        return legal_move
+        legal_move = argwhere(board_fill != 1).flatten()
+        return legal_move, board_fill
 
     def _selection(self, key, c_pucb):
         edges = self.tree[key]
@@ -113,21 +111,19 @@ class MCTS:
         return action
 
     def _get_pucb(self, edges, c_pucb):
-        legal_move = self._get_legal_move(self.board)
+        legal_move, no_legal_loc = self._get_legal_move(self.board)
         prior = 1/len(legal_move)
         total_N = edges.sum(0)[N]
         # black's pucb
         if self.board[COLOR][0] == WHITE:
-            pucb = zeros(self.board_size**2) - np.inf
-            for move in legal_move:
-                pucb[move] = edges[move][Q] + \
-                    c_pucb * prior * sqrt(total_N) / (edges[move][N] + 1)
+            no_legal_loc *= -99999999
+            pucb = edges[:, Q] + \
+                c_pucb * prior * sqrt(total_N) / (edges[:, N] + 1) + no_legal_loc
         # white's pucb
         else:
-            pucb = zeros(self.board_size**2) + np.inf
-            for move in legal_move:
-                pucb[move] = edges[move][Q] - \
-                    c_pucb * prior * sqrt(total_N) / (edges[move][N] + 1)
+            no_legal_loc *= 99999999
+            pucb = edges[:, Q] - \
+                c_pucb * prior * sqrt(total_N) / (edges[:, N] + 1) + no_legal_loc
         return pucb
 
     def _backup(self, reward):
@@ -138,6 +134,7 @@ class MCTS:
             edges = self.tree[key]
             edges[action][N] += 1
             edges[action][Q] += (reward - edges[action][Q]) / edges[action][N]
+        return 0
 
 
 def play():
@@ -170,14 +167,13 @@ def play():
         print('')
         print('=' * 20, " {}  Game End  ".format(g + 1), '=' * 20)
         blw, whw, drw = result['Black'], result['White'], result['Draw']
-        stat = (
-            'Black Win: {}  White Win: {}  Draw: {}  Winrate: {:0.1f}%'.format(
-                blw, whw, drw,
-                1 / (1 + np.exp(whw / (g + 1)) / np.exp(blw / (g + 1))) * 100))
-        print(stat, '\n')
+        stats = (
+            'Black Win: {}  White Win: {}  Draw: {}  Winrate: {:0.2f}%'.format(
+                blw, whw, drw, blw/(blw+whw)*100 if blw+whw != 0 else 0))
+        print(stats, '\n')
 
 
 if __name__ == '__main__':
     np.set_printoptions(suppress=True)
-    np.random.seed(0)
+    # np.random.seed(0)
     play()

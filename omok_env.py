@@ -25,10 +25,10 @@ class OmokEnv:
     def reset(self, state=None):
         if state is None:  # initialize state
             self.state = np.zeros(
-                ((self.n_history * 2 + 1) * self.board_size**2), 'int8')
-            self.history = deque([np.zeros((self.board_size**2), 'int8')] *
+                ((self.n_history * 2 + 1) * self.board_size**2), 'float')
+            self.history = deque([np.zeros((self.board_size**2), 'float')] *
                                  self.n_history * 2, maxlen=self.n_history * 2)
-            self.board = np.zeros((3, self.board_size**2), 'int8')
+            self.board = np.zeros((3, self.board_size**2), 'float')
             self.action = None
         else:  # pass the state to the simulation's root
             self.state = state.copy()
@@ -37,7 +37,7 @@ class OmokEnv:
             self.history = deque([state_origin[i]
                                   for i in range(self.n_history * 2)],
                                  maxlen=self.n_history * 2)
-            self.board = np.zeros((3, self.board_size**2), 'int8')
+            self.board = np.zeros((3, self.board_size**2), 'float')
             self.board[CURRENT] = state_origin[1]
             self.board[OPPONENT] = state_origin[0]
             self.board[COLOR] = state_origin[self.n_history * 2]
@@ -49,7 +49,7 @@ class OmokEnv:
         # board
         state_origin = self.state.reshape(
             self.n_history * 2 + 1, self.board_size**2)
-        self.board = np.zeros((3, self.board_size**2), 'int8')
+        self.board = np.zeros((3, self.board_size**2), 'float')
         self.board[CURRENT] = state_origin[1]
         self.board[OPPONENT] = state_origin[0]
         self.board[COLOR] = state_origin[self.n_history * 2]
