@@ -156,7 +156,7 @@ class OmokEnv:
                 if j == self.board_size - 1:
                     board_str += '\n'
         board_str += '  ' + '-' * (self.board_size - 6) + \
-            '  MOVE: {:2}  '.format(count) + '-' * (self.board_size - 6)
+            '  MOVE: {:2.0f}  '.format(count) + '-' * (self.board_size - 6)
         print(board_str)
 
 

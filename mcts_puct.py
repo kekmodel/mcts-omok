@@ -14,7 +14,7 @@ BLACK = 1
 WHITE = 0
 BOARD_SIZE = 9
 HISTORY = 2
-N_SIMUL = 5000
+N_SIMUL = 800
 GAME = 5
 
 
@@ -116,12 +116,12 @@ class MCTS:
         total_N = edges.sum(0)[N]
         # black's pucb
         if self.board[COLOR][0] == WHITE:
-            no_legal_loc *= -99999999
+            no_legal_loc *= -9999
             pucb = edges[:, Q] + \
                 c_pucb * prior * sqrt(total_N) / (edges[:, N] + 1) + no_legal_loc
         # white's pucb
         else:
-            no_legal_loc *= 99999999
+            no_legal_loc *= 9999
             pucb = edges[:, Q] - \
                 c_pucb * prior * sqrt(total_N) / (edges[:, N] + 1) + no_legal_loc
         return pucb
